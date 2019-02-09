@@ -10,7 +10,7 @@ import party
 from requests.exceptions import (BaseHTTPError, ConnectionError, HTTPError, InvalidURL, RequestException)
 
 from ..credentials import load_credentials, load_slack_credentials
-from utils.slack import post_slack_message
+from .slack import post_slack_message
 
 LOG = logging.getLogger(__name__)
 
