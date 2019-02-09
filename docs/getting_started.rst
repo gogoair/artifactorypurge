@@ -15,6 +15,11 @@ Lavatory looks for several environment variables in order to authenticate:
 These will be loaded in at the beginning of a run and raise an exception
 if these environment variables are missing.
 
+In addition, Lavatory supports the ability to send Slack notifications with optional environment variables (both of which must be set):
+
+``SLACK_API_TOKEN`` - Slack API Token
+
+``SLACK_CHANNEL`` - Slack Channel to Post Notification to
 
 Purging Artifacts
 -----------------
