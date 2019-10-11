@@ -6,3 +6,4 @@ requests
 humanfriendly
 party
 pluginbase
+django

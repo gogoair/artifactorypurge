@@ -1,6 +1,7 @@
 import logging
 import os
 import pathlib
+import re
 
 from pluginbase import PluginBase
 
@@ -51,7 +52,10 @@ def get_policy(plugin_source, repository, default=True):
     policy_name = repository.replace("-", "_")
     try:
         policy = plugin_source.load_plugin(policy_name)
-    except ImportError:
+    except ImportError as err:
+        # bubble up import errors from the actual loading of existing plugins
+        if not re.match(r'^No module named \'pluginbase\..+\.%s\'$' % policy_name, str(err)):
+            raise err
         if default:
             LOG.info("No policy found for %s. Applying Default", repository)
             policy = plugin_source.load_plugin('default')
