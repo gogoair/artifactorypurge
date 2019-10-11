@@ -15,3 +15,20 @@ def load_credentials():
             raise MissingEnvironmentVariable(key.upper())
 
     return credentials
+
+def load_slack_credentials():
+    """Get slack credentials from environment variables
+    
+    Returns False if no credentials set.
+
+    """
+
+    slack_credentials = {
+        "api_token": os.getenv('SLACK_API_TOKEN', False),
+        "slack_channel": os.getenv('SLACK_CHANNEL', False)
+    }
+
+    if not slack_credentials['api_token'] and not slack_credentials['slack_channel']:
+        slack_credentials = False
+
+    return slack_credentials

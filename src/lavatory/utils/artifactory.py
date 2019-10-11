@@ -10,7 +10,8 @@ import party
 # pylint: disable=redefined-builtin
 from requests.exceptions import (BaseHTTPError, ConnectionError, HTTPError, InvalidURL, RequestException)
 
-from ..credentials import load_credentials
+from ..credentials import load_credentials, load_slack_credentials
+from .slack import post_slack_message
 
 LOG = logging.getLogger(__name__)
 
@@ -85,6 +86,10 @@ class Artifactory:
                     purged += 1
                 except (BaseHTTPError, HTTPError, InvalidURL, RequestException, ConnectionError) as error:
                     LOG.error(str(error))
+    
+                if load_slack_credentials():
+                    slack_message = "Purged Artifact: {}".format(full_artifact_url)
+                    post_slack_message(message=slack_message, username="lavatory", icon_emoji=":name_badge:")
 
         return purged
 
