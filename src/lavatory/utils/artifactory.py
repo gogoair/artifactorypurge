@@ -30,7 +30,8 @@ class Artifactory:
         self.artifactory.artifactory_url = self.api_url
         self.artifactory.username = self.credentials['artifactory_username']
         self.artifactory.password = base64.encodebytes(bytes(self.credentials['artifactory_password'], 'utf-8'))
-        self.artifactory.certbundle = os.getenv('LAVATORY_CERTBUNDLE_PATH', certifi.where())
+        skip_verify = int(os.getenv('LAVATORY_SKIP_CERT_VERIFY', '1'))
+        self.artifactory.certbundle = False if skip_verify else os.getenv('LAVATORY_CERTBUNDLE_PATH', certifi.where())
 
     def repos(self, repo_type='local'):
         """
