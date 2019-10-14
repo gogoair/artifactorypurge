@@ -18,8 +18,9 @@ LOG = logging.getLogger(__name__)
 class Artifactory:
     """Artifactory purger class."""
 
-    def __init__(self, repo_name=None):
+    def __init__(self, repo_name=None, dryrun=True):
         self.repo_name = repo_name
+        self.dryrun = dryrun
         self.credentials = load_credentials()
         self.base_url = self.credentials['artifactory_url']
         self.artifactory = party.Party()
@@ -58,7 +59,7 @@ class Artifactory:
 
         return repos
 
-    def purge(self, dry_run, artifacts):
+    def purge(self, artifacts):
         """ Purge artifacts from the specified repo.
 
         Args:
@@ -69,7 +70,7 @@ class Artifactory:
             purged (int): Count purged.
         """
         purged = 0
-        mode = 'DRYRUN' if dry_run else 'LIVE'
+        mode = 'DRYRUN' if self.dryrun else 'LIVE'
         LOG.info('Running mode: %s', mode)
 
         artifacts = sorted(artifacts, key=lambda k: k['path'])
@@ -77,7 +78,7 @@ class Artifactory:
             artifact_path = '{}/{}/{}'.format(self.repo_name, artifact['path'], artifact['name'])
             LOG.info('%s purge %s', mode, artifact_path)
             full_artifact_url = '{}/{}'.format(self.base_url, artifact_path)
-            if dry_run:
+            if self.dryrun:
                 purged += 1
             else:
                 try:
@@ -99,8 +100,11 @@ class Artifactory:
         dest_prefix = "?to=/{}".format(dest_repository)
         artifacts = sorted(artifacts, key=lambda k: k['path'])
         for artifact in artifacts:
-            move_url = "{0}/{1}/{2}{3}/{1}/{2}".format(base_endpoint, artifact['path'], artifact['name'], dest_prefix)
             LOG.info("Moving %s to repository %s", artifact['name'], dest_repository)
+            move_url = "{0}/{1}/{2}{3}/{1}/{2}".format(base_endpoint, artifact['path'], artifact['name'], dest_prefix)
+            if self.dryrun:
+                LOG.info("DRYRUN: would have made request to %s", move_url)
+                continue
             request = self.artifactory.post(move_url)
             if not request.ok:
                 LOG.warning("error moving artifact %s: %s", artifact['name'], request.text)

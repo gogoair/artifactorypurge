@@ -60,13 +60,13 @@ def apply_purge_policies(selected_repos, policies_path=None, dryrun=True, defaul
     plugin_source = setup_pluginbase(extra_policies_path=policies_path)
     LOG.info("Applying retention policies to %s", ', '.join(selected_repos))
     for repository in selected_repos:
-        artifactory_repo = Artifactory(repo_name=repository)
+        artifactory_repo = Artifactory(repo_name=repository, dryrun=dryrun)
         policy = get_policy(plugin_source, repository, default=default)
         if not policy:
             continue
         LOG.info("Policy Docs: %s", inspect.getdoc(policy.purgelist))
         artifacts = policy.purgelist(artifactory_repo)
-        purged_count = artifactory_repo.purge(dryrun, artifacts)
+        purged_count = artifactory_repo.purge(artifacts)
         LOG.info("Processed %s, Purged %s", repository, purged_count)
 
 
